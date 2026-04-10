@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "App",
+      "request": "launch",
+      "mainClass": "App",
+      "projectName": "final-project-kabalab_8ca96bcb"
+    },
+    {
+      "type": "java",
       "name": "Run Main",
       "request": "launch",
       "mainClass": "Main",
