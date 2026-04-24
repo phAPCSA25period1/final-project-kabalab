@@ -12,7 +12,7 @@ public class buttons {
     private int[] pos; // button grid position [x, y]
     private int sizeOfButton; // pixel size
     private boolean clicked = false;
-    private boolean test = false;
+    private static boolean movement = false;//if true when enter button button is "clicked"
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
@@ -58,29 +58,13 @@ public class buttons {
                 BorderFactory.createLineBorder(clr, 0),
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)));
 
-        btn.addActionListener(e -> {
-            handler(btn.getName());
-
-            // make it darker when clicked
-            btn.setBackground(darken(clr, 1));
-            clicked = true;
-            // after 2 seconds, return to normal
-            new javax.swing.Timer(2000, evt -> {
-                btn.setBackground(clr);
-                clicked = false;
-            }) {
-                {
-                    setRepeats(false);
-                    start();
-                }
-            };
-        });
+        btn.addActionListener(e -> {clicked(btn,clr);});
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (movement) clicked(btn,clr);
                 if (!clicked) {
                     btn.setBackground(lighten(clr, 0.2));
-                    System.out.println(test);
                 }
             }
 
@@ -92,17 +76,35 @@ public class buttons {
 
         return btn;
     }
+    
+    private void clicked(JButton btn,Color clr){
+        handler(btn.getName());
+
+        // make it darker when clicked
+        btn.setBackground(darken(clr, 1));
+        clicked = true;
+        // after 2 seconds, return to normal
+        new javax.swing.Timer(2000, evt -> {
+            btn.setBackground(clr);
+            clicked = false;
+        }) {
+            {
+                setRepeats(false);
+                start();
+            }
+        };
+    }
 
     /**
      * Handles button clicks
      */
     private void handler(String name) {
         if (name.equals("btn_0_0")) {
-            test = !test;
-            System.out.println(test);
+            movement = !movement;
+            System.out.println(movement);
 
         } else {
-            // System.out.println(name + " not found");
+            System.out.println(name + " not found");
         }
     }
 
