@@ -12,7 +12,9 @@ public class buttons {
     private int[] pos; // button grid position [x, y]
     private int sizeOfButton; // pixel size
     private boolean clicked = false;
+    private int clicks = 0;
     private static boolean movement = false;//if true when enter button button is "clicked"
+    private Color clr;
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
@@ -21,7 +23,7 @@ public class buttons {
 
     public buttons(int[] ppos) {
         pos = ppos;
-
+        clr = randomColor();
         // calculate button size based on screen and grid
         int widthPerButton = size[0] / switches[0];
         int heightPerButton = size[1] / switches[1];
@@ -38,7 +40,12 @@ public class buttons {
         return new Point(x, y);
     }
 
-    public JButton makeClrButton(Color clr, String str) {
+    private Color randomColor(){
+        return new Color((int) (Math.random() * 200) + 30,(int) (Math.random() * 200) + 30,(int) (Math.random() * 200) + 30);
+    }
+    
+    public JButton makeClrButton(Color clr1, String str) {
+        clr = (clr1.getRed() == 0) ? randomColor() : clr1;
         JButton btn = new JButton(" ");
         btn.setName(str);
         btn.setBackground(clr);
@@ -78,6 +85,7 @@ public class buttons {
     }
     
     private void clicked(JButton btn,Color clr){
+        clicks ++;
         handler(btn.getName());
 
         // make it darker when clicked
@@ -85,8 +93,11 @@ public class buttons {
         clicked = true;
         // after 2 seconds, return to normal
         new javax.swing.Timer(2000, evt -> {
-            btn.setBackground(clr);
-            clicked = false;
+            clicks --;
+            if (clicks == 0){
+            this.clr = randomColor();
+            btn.setBackground(this.clr);
+            clicked = false;}
         }) {
             {
                 setRepeats(false);
@@ -101,10 +112,9 @@ public class buttons {
     private void handler(String name) {
         if (name.equals("btn_0_0")) {
             movement = !movement;
-            System.out.println(movement);
 
         } else {
-            System.out.println(name + " not found");
+            // System.out.println(name + " not found");
         }
     }
 
