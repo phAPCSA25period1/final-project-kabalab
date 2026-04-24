@@ -12,6 +12,7 @@ public class buttons {
     private int[] pos; // button grid position [x, y]
     private int sizeOfButton; // pixel size
     private boolean clicked = false;
+    private boolean test = false;
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
@@ -54,7 +55,7 @@ public class buttons {
         btn.setOpaque(true);
 
         btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(clr, 2),
+                BorderFactory.createLineBorder(clr, 0),
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)));
 
         btn.addActionListener(e -> {
@@ -77,8 +78,10 @@ public class buttons {
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (!clicked)
+                if (!clicked) {
                     btn.setBackground(lighten(clr, 0.2));
+                    System.out.println(test);
+                }
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
@@ -94,7 +97,13 @@ public class buttons {
      * Handles button clicks
      */
     private void handler(String name) {
-        System.out.println(name + " not found");
+        if (name.equals("btn_0_0")) {
+            test = !test;
+            System.out.println(test);
+
+        } else {
+            // System.out.println(name + " not found");
+        }
     }
 
     /**
