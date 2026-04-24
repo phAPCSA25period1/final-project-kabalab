@@ -15,6 +15,8 @@ public class buttons {
     private int clicks = 0;
     private static boolean movement = false;//if true when enter button button is "clicked"
     private Color clr;
+    private static boolean sim = false;
+    private static Color prevColor;
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
@@ -24,6 +26,7 @@ public class buttons {
     public buttons(int[] ppos) {
         pos = ppos;
         clr = randomColor();
+        prevColor = randomColor();
         // calculate button size based on screen and grid
         int widthPerButton = size[0] / switches[0];
         int heightPerButton = size[1] / switches[1];
@@ -40,8 +43,18 @@ public class buttons {
         return new Point(x, y);
     }
 
-    private Color randomColor(){
+    private static Color randomColor(){
         return new Color((int) (Math.random() * 200) + 30,(int) (Math.random() * 200) + 30,(int) (Math.random() * 200) + 30);
+    }
+    
+    private static Color simliarColor(Color clr){
+        int newRed = clr.getRed() + ((int) (Math.random()*30-15));
+        int newGreen = clr.getGreen() + ((int) (Math.random()*30-15));
+        int newBlue = clr.getBlue() + ((int) (Math.random()*30-15));
+        newRed = Math.abs(newRed % 255);
+        newGreen = Math.abs(newGreen % 255);
+        newBlue = Math.abs(newBlue % 255);
+        return new Color(newRed,newGreen,newBlue);
     }
     
     public JButton makeClrButton(Color clr1, String str) {
@@ -95,7 +108,8 @@ public class buttons {
         new javax.swing.Timer(2000, evt -> {
             clicks --;
             if (clicks == 0){
-            this.clr = randomColor();
+            this.clr = (sim) ? simliarColor(prevColor) : randomColor();
+            if (sim) prevColor = this.clr;
             btn.setBackground(this.clr);
             clicked = false;}
         }) {
@@ -112,9 +126,10 @@ public class buttons {
     private void handler(String name) {
         if (name.equals("btn_0_0")) {
             movement = !movement;
-
-        } else {
-            // System.out.println(name + " not found");
+        } else if (name.equals("btn_2_0")) {
+            sim = !sim;
+            System.out.println(sim);
+            
         }
     }
 
