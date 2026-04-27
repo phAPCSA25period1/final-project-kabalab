@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -12,8 +11,10 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Button Test");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
             int[] screen = { 800, 800 };
             frame.setSize(screen[0], screen[1]);
+
             int[] sizes = { 10, 10 };
 
             buttons.boot(screen, sizes);
@@ -22,17 +23,16 @@ public class Main {
             panel.setLayout(new GridLayout(sizes[0], sizes[1], 0, 0));
             panel.setBackground(Color.BLACK);
 
+            buttons[][] btns = new buttons[sizes[0]][sizes[1]];
+
             for (int y = 0; y < sizes[0]; y++) {
                 for (int x = 0; x < sizes[1]; x++) {
-                    buttons b = new buttons(new int[] { x, y });
-
                     Color clr = new Color(
                             (int) (Math.random() * 200) + 30,
                             (int) (Math.random() * 200) + 30,
                             (int) (Math.random() * 200) + 30);
-
-                    JButton btn = b.makeClrButton(clr, "btn_" + y + "_" + x);
-                    panel.add(btn);
+                    btns[y][x] = new buttons(new int[] { x, y }, "btn_" + y + "_" + x, clr);
+                    panel.add(btns[y][x]);
                 }
             }
 

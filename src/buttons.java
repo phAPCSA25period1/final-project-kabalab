@@ -1,114 +1,144 @@
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
-public class buttons {
+public class buttons extends JButton {
     private static int[] size; // screen size [width, height]
     private static int[] switches; // grid layout [cols, rows]
-    private int[] pos; // button grid position [x, y]
-    private int sizeOfButton; // pixel size
+    private static boolean movement = false;
+    private static boolean sim = false;
+    private static Color prevColor;
+    private static buttons[][] buttonsList;
+
+    private int[] pos; // grid position
+    private int sizeOfButton;
     private boolean clicked = false;
-    private boolean test = false;
+    private int clicks = 0;
+
+    private Color clr;
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
         switches = pswitches;
+        buttonsList = new buttons[pswitches[0]][pswitches[1]];
     }
 
-    public buttons(int[] ppos) {
-        pos = ppos;
+    public buttons(int[] ppos, String name, Color clr1) {
+        super(" "); // button text
 
-        // calculate button size based on screen and grid
+        this.pos = ppos;
+
+        clr = (clr1.getRed() == 0) ? randomColor() : clr1;
+        prevColor = randomColor();
+
         int widthPerButton = size[0] / switches[0];
         int heightPerButton = size[1] / switches[1];
-
         sizeOfButton = Math.min(widthPerButton, heightPerButton);
+
+        // set properties
+        setName(name);
+        setBackground(clr);
+        setForeground(Color.WHITE);
+        setFocusPainted(false);
+        setContentAreaFilled(false);
+        setOpaque(true);
+
+        Dimension size = new Dimension(sizeOfButton, sizeOfButton);
+        setPreferredSize(size);
+        setMinimumSize(size);
+        setMaximumSize(size);
+
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(clr, 0),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
+
+        // click action
+        addActionListener(e -> clicked());
+
+        // hover + movement behavior
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (movement)
+                    clicked();
+
+                if (!clicked) {
+                    setBackground(lighten(clr, 0.2));
+                }
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (!clicked)
+                    setBackground(clr);
+            }
+        });
+        buttonsList[pos[0]][pos[1]] = this;
     }
 
-    /**
-     * Returns the pixel position of this button
-     */
     public Point getPixelPosition() {
         int x = pos[0] * sizeOfButton;
         int y = pos[1] * sizeOfButton;
         return new Point(x, y);
     }
 
-    public JButton makeClrButton(Color clr, String str) {
-        JButton btn = new JButton(" ");
-        btn.setName(str);
-        btn.setBackground(clr);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+    public void clicked() {
+        clicks++;
+        handler();
 
-        Dimension size = new Dimension(sizeOfButton, sizeOfButton);
-        btn.setPreferredSize(size);
-        btn.setMinimumSize(size);
-        btn.setMaximumSize(size);
+        setBackground(darken(clr, 1));
+        clicked = true;
 
-        btn.setContentAreaFilled(false);
-        btn.setOpaque(true);
-
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(clr, 0),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
-
-        btn.addActionListener(e -> {
-            handler(btn.getName());
-
-            // make it darker when clicked
-            btn.setBackground(darken(clr, 1));
-            clicked = true;
-            // after 2 seconds, return to normal
-            new javax.swing.Timer(2000, evt -> {
-                btn.setBackground(clr);
+        new javax.swing.Timer(2000, evt -> {
+            clicks--;
+            if (clicks == 0) {
+                clr = (sim) ? simliarColor(prevColor) : randomColor();
+                if (sim)
+                    prevColor = clr;
+                setBackground(clr);
                 clicked = false;
-            }) {
-                {
-                    setRepeats(false);
-                    start();
-                }
-            };
-        });
-
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (!clicked) {
-                    btn.setBackground(lighten(clr, 0.2));
-                    System.out.println(test);
-                }
             }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if (!clicked)
-                    btn.setBackground(clr);
+        }) {
+            {
+                setRepeats(false);
+                start();
             }
-        });
-
-        return btn;
+        };
     }
 
-    /**
-     * Handles button clicks
-     */
-    private void handler(String name) {
-        if (name.equals("btn_0_0")) {
-            test = !test;
-            System.out.println(test);
-
-        } else {
-            // System.out.println(name + " not found");
+    private void handler() {
+        if (clicks >= 5) {
+            if (getName().equals("btn_0_0")) {
+                for (int y = 0; y < buttonsList[0].length; y++) {
+                    for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
+                        buttonsList[x][y].clicked();
+                    }
+                }
+            } else if (getName().equals("btn_0_1")) {
+                movement = !movement;
+                System.out.println(movement);
+            } else if (getName().equals("btn_0_2")) {
+                sim = !sim;
+                System.out.println(sim);
+            }
         }
     }
 
-    /**
-     * Lightens a color
-     */
+    private static Color randomColor() {
+        return new Color(
+                (int) (Math.random() * 200) + 30,
+                (int) (Math.random() * 200) + 30,
+                (int) (Math.random() * 200) + 30);
+    }
+
+    private static Color simliarColor(Color clr) {
+        int r = Math.abs((clr.getRed() + (int) (Math.random() * 30 - 15)) % 255);
+        int g = Math.abs((clr.getGreen() + (int) (Math.random() * 30 - 15)) % 255);
+        int b = Math.abs((clr.getBlue() + (int) (Math.random() * 30 - 15)) % 255);
+        return new Color(r, g, b);
+    }
+
     private Color lighten(Color color, double fraction) {
         int r = (int) Math.min(255, color.getRed() + 255 * fraction);
         int g = (int) Math.min(255, color.getGreen() + 255 * fraction);
@@ -116,9 +146,6 @@ public class buttons {
         return new Color(r, g, b);
     }
 
-    /**
-     * Darkens a color
-     */
     private Color darken(Color color, double fraction) {
         int r = (int) Math.max(0, color.getRed() * (1 - fraction));
         int g = (int) Math.max(0, color.getGreen() * (1 - fraction));
