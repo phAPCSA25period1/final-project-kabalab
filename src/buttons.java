@@ -25,10 +25,11 @@ public class buttons extends JButton {
         buttonsList = new buttons[pswitches[0]][pswitches[1]];
     }
 
-    private static void sleep(int MS){
+    private static void sleep(int MS) {
         try {
             Thread.sleep(MS);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
     }
 
     public buttons(int[] ppos, String name, Color clr1) {
@@ -115,21 +116,29 @@ public class buttons extends JButton {
     private void handler() {
         if (clicks >= 5) {
             if (getName().equals("btn_0_0")) {
-                // clicks = 1;
-                // clicked();
-                for (int y = 0; y < buttonsList[0].length; y++) {
-                    for (int x = (y==0) ? 1 : 0; x < buttonsList.length; x++) {
-                        sleep(100);
-                        buttonsList[x][y].clicked();
+                // Run the sequence in a background thread so we don't block the EDT
+                new Thread(() -> {
+                    for (int y = 0; y < buttonsList[0].length; y++) {
+                        for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                return;
+                            }
+                            final int fx = x;
+                            final int fy = y;
+                            javax.swing.SwingUtilities.invokeLater(() -> buttonsList[fx][fy].clicked());
+                        }
                     }
-                }
+                }).start();
             } else if (getName().equals("btn_0_1")) {
                 movement = !movement;
-                clicks =  3;
+                clicks = 3;
                 System.out.println("Drag:" + movement);
             } else if (getName().equals("btn_0_2")) {
                 sim = !sim;
-                clicks =  3;
+                clicks = 3;
                 System.out.println("Simliar:" + sim);
             }
         }
