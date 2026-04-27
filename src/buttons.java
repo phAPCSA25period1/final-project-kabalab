@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
@@ -9,7 +8,7 @@ public class buttons extends JButton {
     private static int[] size; // screen size [width, height]
     private static int[] switches; // grid layout [cols, rows]
     private static boolean movement = false;
-    private static boolean sim = false;
+    private static boolean sim = true;
     private static Color prevColor;
     private static buttons[][] buttonsList;
 
@@ -17,13 +16,19 @@ public class buttons extends JButton {
     private int sizeOfButton;
     private boolean clicked = false;
     private int clicks = 0;
-
+    private int test = 0;
     private Color clr;
 
     public static void boot(int[] psize, int[] pswitches) {
         size = psize;
         switches = pswitches;
         buttonsList = new buttons[pswitches[0]][pswitches[1]];
+    }
+
+    private static void sleep(int MS){
+        try {
+            Thread.sleep(MS);
+        } catch (InterruptedException e) {}
     }
 
     public buttons(int[] ppos, String name, Color clr1) {
@@ -91,7 +96,7 @@ public class buttons extends JButton {
         clicked = true;
 
         new javax.swing.Timer(2000, evt -> {
-            clicks--;
+            clicks = (clicks - 1 < 0) ? 0 : clicks - 1;
             if (clicks == 0) {
                 clr = (sim) ? simliarColor(prevColor) : randomColor();
                 if (sim)
@@ -110,17 +115,22 @@ public class buttons extends JButton {
     private void handler() {
         if (clicks >= 5) {
             if (getName().equals("btn_0_0")) {
+                // clicks = 1;
+                // clicked();
                 for (int y = 0; y < buttonsList[0].length; y++) {
-                    for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
+                    for (int x = (y==0) ? 1 : 0; x < buttonsList.length; x++) {
+                        sleep(100);
                         buttonsList[x][y].clicked();
                     }
                 }
             } else if (getName().equals("btn_0_1")) {
                 movement = !movement;
-                System.out.println(movement);
+                clicks =  3;
+                System.out.println("Drag:" + movement);
             } else if (getName().equals("btn_0_2")) {
                 sim = !sim;
-                System.out.println(sim);
+                clicks =  3;
+                System.out.println("Simliar:" + sim);
             }
         }
     }
