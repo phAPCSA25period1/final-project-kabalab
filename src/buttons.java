@@ -157,36 +157,6 @@ public class buttons extends JButton {
         if (clicks >= 5) {
             if (getName().equals("btn_0_0")) {
                 btn0_0Clicked();
-                // if (running) {
-                // repeats = !repeats;
-                // System.out.println("repeats:" + repeats);
-                // } else {
-                // running = true;
-                // new Thread(() -> {
-                // for (int y = 0; y < buttonsList[0].length; y += 2) {
-                // for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
-                // sleepAndClick(100, new int[] { x, y });
-                // }
-                // if (y == 0) {
-                // voided = false;
-                // }
-                // for (int x = buttonsList.length - 1; x >= 0; x--) {
-                // sleepAndClick(100, new int[] { x, y + 1 });
-                // }
-                // }
-                // running = false;
-                // if (repeats) {
-                // voided = true;
-                // clicked();
-                // clicked();
-                // clicked();
-                // clicked();
-                // clicked();
-                // } else {
-                // voided = false;
-                // }
-                // }).start();
-                // }
             } else if (getName().equals("btn_0_1") && !voided) {
                 movement = !movement;
                 clicks = 3;
@@ -211,6 +181,28 @@ public class buttons extends JButton {
         int g = Math.abs((clr.getGreen() + (int) (Math.random() * 30 - 15)) % 255);
         int b = Math.abs((clr.getBlue() + (int) (Math.random() * 30 - 15)) % 255);
         return new Color(r, g, b);
+    }
+    
+    private static Color betterSimColorUR(int x,y){
+        int r = sqeezed((spectrum()));
+    }
+    
+    private static int spectrum(String value, int x,int y){
+        int returned;
+        if (value.equals("r")) {
+            returned = buttonsList[pos[0]][pos[1]].clr.getRed();
+        }  else if (value.equals("g")) {
+            returned = buttonsList[pos[0]][pos[1]].clr.getGreen();
+        }  else if (value.equals("b")) {
+             returned = buttonsList[pos[0]][pos[1]].clr.getBlue();
+        } else {
+            returned = 0;
+        }
+        return returned;
+    }
+    
+    private static int sqeezed(int value){
+        return Math.min((Math.max((value),0)),255);
     }
 
     private Color lighten(Color color, double fraction) {
