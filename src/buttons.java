@@ -1,22 +1,24 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
 public class buttons extends JButton {
-    private static int[] size; // screen size [width, height]
-    private static int[] switches; // grid layout [cols, rows]
     private static boolean movement = false;
     private static boolean sim = true;
+    private static boolean repeats = true;
+    private static boolean voided = false;
+    private static boolean running = false;
+    private static int[] size; // screen size [width, height]
+    private static int[] switches; // grid layout [cols, rows]
     private static Color prevColor;
     private static buttons[][] buttonsList;
-
     private int[] pos; // grid position
     private int sizeOfButton;
     private boolean clicked = false;
     private int clicks = 0;
-    private int test = 0;
     private Color clr;
 
     public static void boot(int[] psize, int[] pswitches) {
@@ -25,11 +27,16 @@ public class buttons extends JButton {
         buttonsList = new buttons[pswitches[0]][pswitches[1]];
     }
 
-    private static void sleep(int MS) {
+    private static void sleepAndClick(int MS, int[] point) {
         try {
-            Thread.sleep(MS);
-        } catch (InterruptedException e) {
+            Thread.sleep(100);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            return;
         }
+        final int fx = point[0];
+        final int fy = point[1];
+        javax.swing.SwingUtilities.invokeLater(() -> buttonsList[fx][fy].clicked());
     }
 
     public buttons(int[] ppos, String name, Color clr1) {
@@ -113,30 +120,78 @@ public class buttons extends JButton {
         };
     }
 
+    private void btn0_0Clicked() {
+        if (running) {
+            repeats = !repeats;
+            System.out.println("repeats:" + repeats);
+        } else {
+            running = true;
+            new Thread(() -> {
+                for (int y = 0; y < buttonsList[0].length; y += 2) {
+                    for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
+                        sleepAndClick(100, new int[] { x, y });
+                    }
+                    if (y == 0) {
+                        voided = false;
+                    }
+                    for (int x = buttonsList.length - 1; x >= 0; x--) {
+                        sleepAndClick(100, new int[] { x, y + 1 });
+                    }
+                }
+                running = false;
+                if (repeats) {
+                    voided = true;
+                    clicked();
+                    clicked();
+                    clicked();
+                    clicked();
+                    clicked();
+                } else {
+                    voided = false;
+                }
+            }).start();
+        }
+    }
+
     private void handler() {
         if (clicks >= 5) {
             if (getName().equals("btn_0_0")) {
-                // Run the sequence in a background thread so we don't block the EDT
-                new Thread(() -> {
-                    for (int y = 0; y < buttonsList[0].length; y++) {
-                        for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException ie) {
-                                Thread.currentThread().interrupt();
-                                return;
-                            }
-                            final int fx = x;
-                            final int fy = y;
-                            javax.swing.SwingUtilities.invokeLater(() -> buttonsList[fx][fy].clicked());
-                        }
-                    }
-                }).start();
-            } else if (getName().equals("btn_0_1")) {
+                btn0_0Clicked();
+                // if (running) {
+                // repeats = !repeats;
+                // System.out.println("repeats:" + repeats);
+                // } else {
+                // running = true;
+                // new Thread(() -> {
+                // for (int y = 0; y < buttonsList[0].length; y += 2) {
+                // for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
+                // sleepAndClick(100, new int[] { x, y });
+                // }
+                // if (y == 0) {
+                // voided = false;
+                // }
+                // for (int x = buttonsList.length - 1; x >= 0; x--) {
+                // sleepAndClick(100, new int[] { x, y + 1 });
+                // }
+                // }
+                // running = false;
+                // if (repeats) {
+                // voided = true;
+                // clicked();
+                // clicked();
+                // clicked();
+                // clicked();
+                // clicked();
+                // } else {
+                // voided = false;
+                // }
+                // }).start();
+                // }
+            } else if (getName().equals("btn_0_1") && !voided) {
                 movement = !movement;
                 clicks = 3;
                 System.out.println("Drag:" + movement);
-            } else if (getName().equals("btn_0_2")) {
+            } else if (getName().equals("btn_0_2") && !voided) {
                 sim = !sim;
                 clicks = 3;
                 System.out.println("Simliar:" + sim);

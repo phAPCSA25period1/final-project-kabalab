@@ -15,7 +15,7 @@ public class Main {
             int[] screen = { 800, 800 };
             frame.setSize(screen[0], screen[1]);
 
-            int[] sizes = { 10, 10 };
+            int[] sizes = { 30, 30 };
 
             buttons.boot(screen, sizes);
 
