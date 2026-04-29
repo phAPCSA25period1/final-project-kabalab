@@ -11,6 +11,7 @@ public class buttons extends JButton {
     private static boolean repeats = true;
     private static boolean voided = false;
     private static boolean running = false;
+    private static String direction = "N";// N none /L left and up /R right and up
     private static int[] size; // screen size [width, height]
     private static int[] switches; // grid layout [cols, rows]
     private static Color prevColor;
@@ -45,7 +46,7 @@ public class buttons extends JButton {
         this.pos = ppos;
 
         clr = (clr1.getRed() == 0) ? randomColor() : clr1;
-        prevColor = randomColor();
+        prevColor = new Color(255, 0, 0);
 
         int widthPerButton = size[0] / switches[0];
         int heightPerButton = size[1] / switches[1];
@@ -106,9 +107,18 @@ public class buttons extends JButton {
         new javax.swing.Timer(2000, evt -> {
             clicks = (clicks - 1 < 0) ? 0 : clicks - 1;
             if (clicks == 0) {
-                clr = (sim) ? simliarColor(prevColor) : randomColor();
-                if (sim)
+                if (sim) {
+                    if (direction.equals("N")) {
+                        clr = simliarColor(prevColor);
+                    } else if (direction.equals("L") || direction.equals("R")) {
+                        clr = betterSimColor(direction, pos[0], pos[1]);
+                    }
+                } else {
+                    clr = randomColor();
+                }
+                if (sim) {
                     prevColor = clr;
+                }
                 setBackground(clr);
                 clicked = false;
             }
@@ -128,16 +138,19 @@ public class buttons extends JButton {
             running = true;
             new Thread(() -> {
                 for (int y = 0; y < buttonsList[0].length; y += 2) {
+                    direction = "L";
                     for (int x = (y == 0) ? 1 : 0; x < buttonsList.length; x++) {
                         sleepAndClick(100, new int[] { x, y });
                     }
                     if (y == 0) {
                         voided = false;
                     }
+                    direction = "R";
                     for (int x = buttonsList.length - 1; x >= 0; x--) {
                         sleepAndClick(100, new int[] { x, y + 1 });
                     }
                 }
+                direction = "N";
                 running = false;
                 if (repeats) {
                     voided = true;
@@ -157,6 +170,7 @@ public class buttons extends JButton {
         if (clicks >= 5) {
             if (getName().equals("btn_0_0")) {
                 btn0_0Clicked();
+                clicks = 3;
             } else if (getName().equals("btn_0_1") && !voided) {
                 movement = !movement;
                 clicks = 3;
@@ -182,27 +196,36 @@ public class buttons extends JButton {
         int b = Math.abs((clr.getBlue() + (int) (Math.random() * 30 - 15)) % 255);
         return new Color(r, g, b);
     }
-    
-    private static Color betterSimColorUR(int x,y){
-        int r = sqeezed((spectrum()));
+
+    private static Color betterSimColor(String dir, int x, int y) {
+        int r = sqeezed((spectrum("r", x, y - ((y == 0) ? 0 : 1))
+                + (spectrum("r", x + ((x == 0 || x == switches[1] - 1) ? 0 : ((dir.equals("L")) ? -1 : 1)), y))) / 2
+                + ((int) (Math.random() * 30 - 15)));
+        int g = sqeezed((spectrum("g", x, y - ((y == 0) ? 0 : 1))
+                + (spectrum("g", x + ((x == 0 || x == switches[1] - 1) ? 0 : ((dir.equals("L")) ? -1 : 1)), y))) / 2
+                + ((int) (Math.random() * 30 - 15)));
+        int b = sqeezed((spectrum("r", x, y - ((y == 0) ? 0 : 1))
+                + (spectrum("r", x + ((x == 0 || x == switches[1] - 1) ? 0 : ((dir.equals("L")) ? -1 : 1)), y))) / 2
+                + ((int) (Math.random() * 30 - 15)));
+        return new Color(r, g, b);
     }
-    
-    private static int spectrum(String value, int x,int y){
+
+    private static int spectrum(String value, int x, int y) {
         int returned;
         if (value.equals("r")) {
-            returned = buttonsList[pos[0]][pos[1]].clr.getRed();
-        }  else if (value.equals("g")) {
-            returned = buttonsList[pos[0]][pos[1]].clr.getGreen();
-        }  else if (value.equals("b")) {
-             returned = buttonsList[pos[0]][pos[1]].clr.getBlue();
+            returned = buttonsList[y][x].clr.getRed();
+        } else if (value.equals("g")) {
+            returned = buttonsList[y][x].clr.getGreen();
+        } else if (value.equals("b")) {
+            returned = buttonsList[y][x].clr.getBlue();
         } else {
             returned = 0;
         }
         return returned;
     }
-    
-    private static int sqeezed(int value){
-        return Math.min((Math.max((value),0)),255);
+
+    private static int sqeezed(int value) {
+        return Math.min((Math.max((value), 0)), 255);
     }
 
     private Color lighten(Color color, double fraction) {
