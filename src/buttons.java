@@ -30,7 +30,7 @@ public class buttons extends JButton {
 
     private static void sleepAndClick(int MS, int[] point) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(MS);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             return;
