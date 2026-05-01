@@ -1,189 +1,117 @@
-[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=23508228)
-# AP Computer Science A – Final Project
-## Software & Systems Development Capstone
+# ColorGrid: Interactive Button Grid Visualization
 
-Welcome to your **Final Project repository**.
-
-This repository will hold:
-- Your complete Java project
-- Your project journal and planning artifacts
-- Your final, working software product
-
-This is not just an assignment — it is a **capstone software project**.
+An interactive Java application that creates a dynamic grid of colored buttons with animation effects, color propagation, and hidden automated modes. Click, drag, and explore emergent patterns in a visual playground.
 
 ---
 
-## 📌 Project Overview (Read Carefully)
+## 🎯 What This Software Does
 
-In this project, you will:
-- Design and build a **real piece of software**
-- Solve **one real problem** for **one clearly defined user**
-- Work using **agile development**
-- Show evidence of **professional software practices**
-- Use AI responsibly as a planning and support tool
+**ColorGrid** is an interactive visual application featuring:
+- A responsive 5×50 grid of colored buttons
+- Click-triggered color animations and state changes
+- Color propagation and similarity modes that blend colors from neighboring buttons
+- Hidden control modes unlocked by rapid multiple clicks:
+  - **Drag Mode** (5+ clicks on row 0, column 1): Enable click-on-hover behavior
+  - **Similarity Mode** (5+ clicks on row 0, column 2): Toggle between random and predictive color changes
+  - **Pattern Mode** (5+ clicks on row 0, column 0): Execute an automated sweeping animation across the grid
+- Smooth transitions with 2-second delay before color reset
 
-You will leave this course with something you can confidently say:
-
-> “I built this software.”
-
----
-
-## 🔁 Required Workflow (How You Must Work)
-
-### ✅ Daily GitHub Commits (Required)
-You are expected to:
-- Make **at least one meaningful commit every class day**
-- Write **descriptive commit messages** that explain:
-  - What you changed
-  - Why you changed it
-  - What goal it supports
-
-✅ Good commit messages:
-- `Sprint 1: Created Player class and tested constructor`
-- `Sprint 2: Implemented 2D map and verified movement logic`
-
-🚫 Poor commit messages:
-- `updates`
-- `stuff`
-- `final version`
-
-Your commit history is **evidence of your thinking and progress**.
+The application is part art, part interactive game—a playful exploration of state, animation, and emergent visual patterns.
 
 ---
 
-## 🔁 Agile Development & Sprints
+## � Who It's For
 
-You will complete **4 sprints**.  
-Each sprint includes:
-- Planning
-- Building
-- Testing
-- Feedback and reflection
-
-Each sprint ends with:
-- A sprint grade
-- A sprint reflection
-- Feedback exchanged with peers
-
-🚫 You may NOT complete multiple sprints at once.  
-✅ Each sprint grade is **final**.
+- **Curious explorers** who enjoy interactive visual experiences
+- **Students learning Java GUI programming** (Swing/JFrame)
+- **Anyone interested in animated state machines** and color blend algorithms
 
 ---
 
-## 🧪 Testing Expectations
+## 🚀 How to Run the Program
 
-Testing is required every sprint.
+### Prerequisites
+- Java 17 or later
+- No external dependencies (uses standard `javax.swing` library)
 
-✅ Testing may include:
-- Running the program with different inputs
-- Print‑based testing
-- Driver program testing
-- Verifying logic and edge cases
+### Running the Application
 
-You should be able to explain:
-- What you tested
-- How you tested it
-- What you discovered or fixed
+1. **Compile the code:**
+   ```bash
+   javac -d bin src/*.java
+   ```
 
----
+2. **Run the program:**
+   ```bash
+   java -cp bin Main
+   ```
 
-## 🗂️ Required Project Components
+A window titled "Button Test" will appear displaying the 5×50 grid.
 
-Your final project must include:
+### How to Interact
 
-- ✅ Multiple interacting Java classes
-- ✅ Encapsulation (`private` fields, appropriate getters/setters)
-- ✅ Arrays and/or ArrayLists
-- ✅ A purposeful **2D array**
-- ✅ A working driver program (`main`)
-- ✅ A class diagram matching your final code
-- ✅ Clear documentation
-- ✅ A program that runs and works
-
-Inheritance and interfaces are optional but encouraged.
+- **Click any button** to trigger color animation and state change
+- **Hover over buttons** to see a lightened preview (unless drag mode is active)
+- **Rapid-click the buttons in the first row** (top-left area) to discover hidden modes:
+  - **Column 0 (leftmost)**: 5 clicks = sweep animation toggle
+  - **Column 1 (second)**: 5 clicks = drag mode on/hover
+  - **Column 2 (third)**: 5 clicks = similarity mode on/off
 
 ---
 
-## 🤖 Using AI (Allowed, With Responsibility)
+## 🔧 Technical Overview
 
-You may use AI to:
-- Organize ideas
-- Plan sprints
-- Debug code
-- Suggest design improvements
+### Main Classes
 
-You must:
-- Document how you used AI
-- Review and evaluate AI suggestions
-- Understand and explain your final code
+**`buttons` (Custom JButton)**
+- Extends `JButton` with interactive state management
+- Maintains position in 2D grid and color state
+- Handles click animations, hover effects, and delayed color reset
+- Static methods manage the shared button grid and control modes
+- Implements color propagation algorithms and pattern automation
 
-AI should act like:
-> A junior developer you supervise — not something that builds the project for you.
+**`Main` (JFrame Application)**
+- Creates the window frame and Swing panel
+- Initializes a 5×50 grid of buttons
+- Sets up GridLayout for button positioning
+- Entry point for the application
 
----
+### Key Data Structures
 
-## 📘 Project Journal
+- **`buttons[][] buttonsList`**: 2D array storing all buttons in grid (indexed as [x][y])
+- **`int[] pos`**: Each button's position [x, y] in the grid
+- **`int[] size`**: Screen dimensions [width, height]
+- **`int[] switches`**: Grid dimensions [columns, rows]
 
-All planning, work logs, testing notes, and reflections live in **your project journal**.
+### Program Logic
 
-If it happened during this project, it should be documented there.
-
----
-
-## ✅ Final Submission Expectations
-
-By the end of the project:
-- Your program should run reliably
-- Your technical requirements should be met
-- Your code should be readable and organized
-- Your repository should look **professional**
-
----
-
-# ✨ Final Step: README Update (Very Important)
-
-When your project is complete, you must **rewrite this README**  
-so it reflects **your software**, not the assignment.
-
-Your final README should include:
+1. **Boot sequence** (`buttons.boot()`): Initializes grid dimensions and storage
+2. **Click handling** (`clicked()`):
+   - Increments click counter
+   - Darkens button color immediately
+   - Schedules 2-second timer for color reset
+   - Calls `handler()` if clicks >= 5
+3. **Color modes**:
+   - **Random mode**: New random soft color on reset
+   - **Similarity mode**: Blends previous color with slight variation
+   - **Directional propagation**: Averages RGB values from neighboring buttons (left, right, above)
+4. **Pattern automation** (`btn0_0Clicked()`): Sweeps grid row-by-row with alternating directions, creating a wave effect
 
 ---
 
-## 🔹 Project Title
+## Current Limitations
+- Fixed 5×50 grid size (would benefit from dynamic sizing)
+- Limited visual feedback for hidden mode activation
+- No persistent state saving between runs
+- Pattern automation hardcoded to specific trigger button
 
-## 🔹 What This Software Does
-Explain your project in plain language.
+- - -
 
-## 🔹 Who It’s For
-Describe the user and the problem being solved.
+## 📝 Notes
 
-## 🔹 How to Run the Program
-Clear steps so someone else can run your project.
-
-## 🔹 Technical Overview
-Brief description of:
-- Main classes
-- Key data structures
-- Program logic
-
-## 🔹 Class Diagram
-Include or link your final class diagram.
-
-## 🔹 Known Limitations / Future Improvements
-What works well, and what you would improve with more time.
-
----
-
-## 🎯 Final Reminder
-
-This repository represents **you as a developer**.
-
-Take pride in:
-- Your process
-- Your commits
-- Your code
-- Your documentation
-
-Build something real.  
-Build it thoughtfully.  
-Build it well.
+This project demonstrates:
+- Object-oriented design with encapsulation
+- 2D array manipulation and grid-based systems
+- Java Swing GUI programming
+- State management and animation timing
+- Algorithm thinking (color blending, pattern generation)
